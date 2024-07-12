@@ -73,6 +73,8 @@ WSGI_APPLICATION = "liberty_manage.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+AUTH_USER_MODEL = "users.User"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
