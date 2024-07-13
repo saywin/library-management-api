@@ -31,6 +31,18 @@ class Borrowing(models.Model):
                 name="return_date_gte_borrow_date", )
         ]
 
+    @staticmethod
+    def validate_inventory(book: Book, error_to_raise):
+        if book.inventory <= 0:
+            raise error_to_raise(
+                f"All books with the title - {book.title} "
+                f"are currently unavailable"
+            )
+
     def clean(self):
+        Borrowing.validate_inventory(self.book, ValidationError)
         if self.actual_return_date and self.actual_return_date < self.borrow_date:
             raise ValidationError("Actual return date cannot be earlier than borrow date.")
+
+    def __str__(self):
+        return f"{self.book.title}, {self.expected_return_date}"
