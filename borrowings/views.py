@@ -52,3 +52,4 @@ class BorrowingReturnView(generics.UpdateAPIView):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingReturnSerializer
     permission_classes = (IsAdminUser,)
+

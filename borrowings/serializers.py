@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -54,3 +56,24 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = ("actual_return_date",)
+
+    def validate(self, attrs):
+        data = super(BorrowingReturnSerializer, self).validate(attrs=attrs)
+
+        if self.instance.actual_return_date:
+            raise serializers.ValidationError(
+                "This borrowing has already been returned."
+            )
+
+        return data
+
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            instance.actual_return_date = datetime.now().date()
+            instance.save()
+
+            book = instance.book
+            book.inventory += 1
+            book.save()
+
+            return instance
