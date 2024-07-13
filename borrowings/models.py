@@ -1,3 +1,36 @@
+from django.conf import settings
 from django.db import models
+from django.db.models import Q, F
+from rest_framework.exceptions import ValidationError
 
-# Create your models here.
+from books.models import Book
+
+
+class Borrowing(models.Model):
+    borrow_date = models.DateField(auto_now_add=True)
+    expected_return_date = models.DateField()
+    actual_return_date = models.DateField(null=True, blank=True)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name="borrowings"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="borrowings"
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                        Q(expected_return_date__gte=F("borrow_date"))
+                        & Q(actual_return_date__gte=F("borrow_date"))
+                ),
+                name="return_date_gte_borrow_date", )
+        ]
+
+    def clean(self):
+        if self.actual_return_date and self.actual_return_date < self.borrow_date:
+            raise ValidationError("Actual return date cannot be earlier than borrow date.")
