@@ -34,7 +34,17 @@ class BorrowingRetrieveSerializer(BorrowingSerializer):
     user = UserSerializer()
 
 
-class BorrowingCreateSerializer(BorrowingSerializer):
+class BorrowingCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "book",
+            "user",
+        )
+
     def validate(self, attrs):
         data = super(BorrowingCreateSerializer, self).validate(attrs=attrs)
         Borrowing.validate_inventory(attrs["book"], ValidationError)
