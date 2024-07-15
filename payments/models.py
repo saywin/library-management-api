@@ -25,3 +25,16 @@ class Payment(models.Model):
 
     def get_absolute_url(self):
         return reverse("payment-detail", args=[str(self.id)])
+
+    @staticmethod
+    def calculate_fine(borrowing):
+        if borrowing.actual_return_date > borrowing.expected_return_date:
+            days_of_overdue = (
+                borrowing.actual_return_date - borrowing.expected_return_date
+            ).days
+            fine_multiplier = 1.1
+            daily_fee = borrowing.book.daily_fee
+            fine_amount = days_of_overdue * daily_fee * fine_multiplier
+            return fine_amount
+        else:
+            return 0

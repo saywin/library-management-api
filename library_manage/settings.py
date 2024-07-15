@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-0wo#4@bi3&^2c_o7rjpt#_wf3&cp-^i@b%3tyq4md#k@)cmpem
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -63,8 +63,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "library_manage.urls"
-
-BASE_URL = "http://localhost:8000/"
 
 
 TEMPLATES = [
