@@ -1,5 +1,5 @@
 """
-URL configuration for liberty_manage project.
+URL configuration for library_manage project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -28,5 +28,5 @@ urlpatterns = [
     path("api/books/", include("books.urls", namespace="books")),
     path("api/user/", include("users.urls", namespace="user")),
     path("api/borrowings/", include("borrowings.urls", namespace="borrowings")),
-
+    path("api/payments/", include("payments.urls", namespace="payments")),
 ]
