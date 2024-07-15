@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 from celery.schedules import crontab
@@ -62,6 +63,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "library_manage.urls"
+
+BASE_URL = "http://localhost:8000/"
+
 
 TEMPLATES = [
     {
@@ -146,7 +150,6 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
 }
 
-
 # Celery Configurations
 # https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
@@ -154,7 +157,6 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 CELERY_TIMEZONE = "Europe/Kyiv"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-
 
 # Celery Beat Task
 CELERY_BEAT_SCHEDULE = {
