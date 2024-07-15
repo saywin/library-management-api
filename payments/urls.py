@@ -1,4 +1,6 @@
 from django.urls import path
+from rest_framework.reverse import reverse_lazy
+
 from .views import (
     PaymentListAPIView,
     PaymentDetailAPIView,

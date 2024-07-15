@@ -70,9 +70,30 @@ class CreateCheckoutSessionView(APIView):
 
 class PaymentSuccessView(APIView):
     def get(self, request, *args, **kwargs):
-        return HttpResponse("Payment was successful.")
+        session_id = request.query_params.get("session_id")
+        try:
+            payment = Payment.objects.get(session_id=session_id)
+            if payment.is_paid:
+                return Response(
+                    "Payment was successful.",
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    "Payment was not successful.",
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Payment.DoesNotExist:
+            return Response(
+                "Payment session not found.",
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class PaymentCancelView(APIView):
     def get(self, request, *args, **kwargs):
-        return HttpResponse("Payment was cancelled.")
+        return Response(
+            "Payment can be made later. "
+            "The session is available for 24 hours.",
+            status=status.HTTP_200_OK
+        )
