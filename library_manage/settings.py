@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "users",
     "borrowings",
     "payments",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -63,7 +64,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "library_manage.urls"
-
 
 TEMPLATES = [
     {
@@ -137,7 +137,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # JWT Configurations
@@ -161,5 +162,21 @@ CELERY_BEAT_SCHEDULE = {
     "check-overdue-borrowings-every-day": {
         "task": "borrowing.tasks.check_overdue_borrowings",
         "schedule": crontab(hour="10", minute="0"),
+    },
+}
+
+# Swagger Configurations
+# https://drf-spectacular.readthedocs.io/en/latest/readme.html#installation
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Management API",
+    "DESCRIPTION": "A Django-based API for managing library "
+    "operations including book borrowing, returns, and fine payments.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
     },
 }

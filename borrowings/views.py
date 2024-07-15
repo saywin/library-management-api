@@ -1,4 +1,6 @@
-from rest_framework import generics
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from borrowings.helpers import send_telegram_message
@@ -37,17 +39,35 @@ class BorrowingListView(generics.ListAPIView):
         if not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user)
 
-        is_active = self.request.query_params.get("is_active", None)
+        is_active = self.request.query_params.get("is_active")
 
         if is_active:
-            queryset = queryset.filter(actual_return_date__isnull=True)
+            is_active = is_active.lower() == "true"
+            queryset = queryset.filter(actual_return_date__isnull=is_active)
 
-        user_id = self.request.query_params.get("user_id", None)
+        user_id = self.request.query_params.get("user_id")
 
         if user_id and self.request.user.is_staff:
             queryset = queryset.filter(user_id=user_id)
 
         return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="is_active",
+                type=OpenApiTypes.BOOL,
+                description="Filter by actual return date (ex. ?is_active=True)",
+            ),
+            OpenApiParameter(
+                name="user_id",
+                type=OpenApiTypes.INT,
+                description="Filter by user id (ex. ?user_id=2)",
+            ),
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class BorrowingRetrieveView(generics.RetrieveAPIView):
