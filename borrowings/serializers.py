@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from books.serializers import BookSerializer
 from borrowings.models import Borrowing
 from payments.helpers import create_stripe_session
+from payments.models import Payment
 from payments.serializers import PaymentSerializer
 from users.serializers import UserSerializer
 
@@ -56,6 +57,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        request = self.context.get("request")
         with transaction.atomic():
             book = validated_data["book"]
             if book.inventory > 0:
@@ -67,7 +69,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             borrowing = Borrowing.objects.create(**validated_data)
 
             try:
-                session_id = create_stripe_session(borrowing)
+                session_id = create_stripe_session(request, borrowing)
             except Exception as e:
                 borrowing.delete()
                 raise serializers.ValidationError(str(e))
@@ -99,4 +101,17 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
             book.inventory += 1
             book.save()
 
+            if instance.actual_return_date > instance.expected_return_date:
+                self.create_fine_payment(instance)
+
             return instance
+
+    def create_fine_payment(self, borrowing):
+        fine_amount = Payment.calculate_fine(borrowing)
+        if fine_amount > 0:
+            Payment.objects.create(
+                status=Payment.StatusChoices.PENDING,
+                type=Payment.TypeChoices.FINE,
+                borrowing=borrowing,
+                money_to_pay=fine_amount,
+            )
