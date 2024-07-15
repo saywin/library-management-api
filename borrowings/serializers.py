@@ -6,10 +6,14 @@ from rest_framework.exceptions import ValidationError
 
 from books.serializers import BookSerializer
 from borrowings.models import Borrowing
+from payments.helpers import create_stripe_session
+from payments.serializers import PaymentSerializer
 from users.serializers import UserSerializer
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(many=True, read_only=True)
+
     class Meta:
         model = Borrowing
         fields = (
@@ -19,6 +23,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "actual_return_date",
             "book",
             "user",
+            "payments",
         )
 
 
@@ -58,7 +63,15 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                 book.save()
             else:
                 raise serializers.ValidationError("Inventory for the book is empty.")
+
             borrowing = Borrowing.objects.create(**validated_data)
+
+            try:
+                session_id = create_stripe_session(borrowing)
+            except Exception as e:
+                borrowing.delete()
+                raise serializers.ValidationError(str(e))
+
             return borrowing
 
 
