@@ -1,4 +1,3 @@
-from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -14,4 +13,4 @@ class Book(models.Model):
     daily_fee = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
-        return f"Book: {self.title}, author : {self.author} "
+        return f"Book: {self.title}, author: {self.author}"
