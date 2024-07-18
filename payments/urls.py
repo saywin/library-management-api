@@ -5,8 +5,8 @@ from .views import (
     PaymentListAPIView,
     PaymentDetailAPIView,
     CreateCheckoutSessionView,
-    PaymentSuccessView,
-    PaymentCancelView,
+    StripePaymentSuccessAPIView,
+    StripePaymentCancelAPIView,
 )
 
 urlpatterns = [
@@ -17,8 +17,8 @@ urlpatterns = [
         CreateCheckoutSessionView.as_view(),
         name="create-checkout-session",
     ),
-    path("success/", PaymentSuccessView.as_view(), name="payment-success"),
-    path("cancel/", PaymentCancelView.as_view(), name="payment-cancel"),
+    path("success/", StripePaymentSuccessAPIView.as_view(), name="payment-success"),
+    path("cancel/", StripePaymentCancelAPIView.as_view(), name="payment-cancel"),
 ]
 
 app_name = "payments"

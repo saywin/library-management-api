@@ -2,7 +2,6 @@ import os
 
 import stripe
 from django.urls import reverse
-from django.http import HttpRequest
 
 from .models import Payment
 

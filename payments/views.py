@@ -1,6 +1,5 @@
 import os
 
-from django.http import HttpResponse
 from dotenv import load_dotenv
 
 import stripe
@@ -68,32 +67,64 @@ class CreateCheckoutSessionView(APIView):
         return Response({"id": session.id}, status=status.HTTP_200_OK)
 
 
-class PaymentSuccessView(APIView):
-    def get(self, request, *args, **kwargs):
-        session_id = request.query_params.get("session_id")
-        try:
-            payment = Payment.objects.get(session_id=session_id)
-            if payment.is_paid:
-                return Response(
-                    "Payment was successful.",
-                    status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                    "Payment was not successful.",
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except Payment.DoesNotExist:
+class StripePaymentSuccessAPIView(APIView):
+    def get(self, request):
+        session_id = request.GET.get("session_id")
+        if not session_id:
             return Response(
-                "Payment session not found.",
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Session ID not provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+        try:
+            payment = Payment.objects.get(session_id=session_id)
+        except Payment.DoesNotExist:
+            return Response(
+                {"error": "Payment not found for session ID"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-class PaymentCancelView(APIView):
-    def get(self, request, *args, **kwargs):
+        borrowing = payment.borrowing
+        if payment.status == Payment.StatusChoices.PAID:
+            return Response(
+                {"message": "Payment already marked as paid", "borrowing": borrowing.id},
+                status=status.HTTP_200_OK,
+            )
+
+        payment.status = Payment.StatusChoices.PAID
+        payment.save()
+
         return Response(
-            "Payment can be made later. "
-            "The session is available for 24 hours.",
-            status=status.HTTP_200_OK
+            {"message": "Payment successful", "borrowing": borrowing.id},
+            status=status.HTTP_200_OK,
+        )
+
+
+class StripePaymentCancelAPIView(APIView):
+    def get(self, request):
+        session_id = request.GET.get("session_id")
+        if not session_id:
+            return Response(
+                {"error": "Session ID not provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            payment = Payment.objects.get(session_id=session_id)
+        except Payment.DoesNotExist:
+            return Response(
+                {"error": "Payment not found for session ID"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        borrowing = payment.borrowing
+        if payment.status == Payment.StatusChoices.PAID:
+            return Response(
+                {"error": "Cannot cancel a paid payment", "borrowing": borrowing.id},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        payment.status = Payment.StatusChoices.PENDING
+        payment.save()
+
+        return Response(
+            {"message": "Payment cancelled", "borrowing": borrowing.id},
+            status=status.HTTP_200_OK,
         )
