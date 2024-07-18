@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from rest_framework import status, serializers
+from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
@@ -34,12 +34,16 @@ class BaseBorrowingAPITest(TestCase):
             password="password123",
         )
         self.borrowing_data = {
-            "expected_return_date": (datetime.now() + timedelta(days=7)).date(),
+            "expected_return_date": (
+                datetime.now() + timedelta(days=7)
+            ).date(),
             "book": self.book,
             "user": self.user,
         }
         self.borrowing_data_2 = {
-            "expected_return_date": (datetime.now() + timedelta(days=7)).date(),
+            "expected_return_date": (
+                datetime.now() + timedelta(days=7)
+            ).date(),
             "book": self.book.id,
             "user": self.user.id,
         }
@@ -64,7 +68,9 @@ class UnAuthenticatedBorrowingAPITest(BaseBorrowingAPITest):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_borrowing_unauthorized(self):
-        response = self.client.post(self.borrowing_list_url, self.borrowing_data)
+        response = self.client.post(
+            self.borrowing_list_url, self.borrowing_data
+        )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -93,7 +99,9 @@ class AuthenticatedBorrowingAPITest(BaseBorrowingAPITest):
 
     def test_borrowing_return(self):
         data = {"actual_return_date": datetime.now().date()}
-        serializer = BorrowingReturnSerializer(instance=self.borrowing_1, data=data)
+        serializer = BorrowingReturnSerializer(
+            instance=self.borrowing_1, data=data
+        )
         serializer.is_valid()
         updated_instance = serializer.update(
             self.borrowing_1, serializer.validated_data
@@ -130,14 +138,18 @@ class IsAdminBorrowingApiTest(BaseBorrowingAPITest):
             user=user_2,
         )
 
-        response = self.client.get(self.borrowing_list_url, {"user_id": self.user.id})
+        response = self.client.get(
+            self.borrowing_list_url, {"user_id": self.user.id}
+        )
 
         expected_borrowings = Borrowing.objects.filter(user=self.user)
         serializer = BorrowingListSerializer(expected_borrowings, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(serializer.data, response.data)
-        self.assertNotIn(BorrowingListSerializer(borrowing_3).data, response.data)
+        self.assertNotIn(
+            BorrowingListSerializer(borrowing_3).data, response.data
+        )
 
     def test_filter_borrowings_by_is_active(self):
         self.borrowing_2.actual_return_date = (
@@ -151,11 +163,19 @@ class IsAdminBorrowingApiTest(BaseBorrowingAPITest):
             self.borrowing_list_url, {"is_active": "false"}
         )
 
-        active_borrowings = Borrowing.objects.filter(actual_return_date__isnull=True)
-        inactive_borrowings = Borrowing.objects.filter(actual_return_date__isnull=False)
+        active_borrowings = Borrowing.objects.filter(
+            actual_return_date__isnull=True
+        )
+        inactive_borrowings = Borrowing.objects.filter(
+            actual_return_date__isnull=False
+        )
 
-        serializer_active = BorrowingListSerializer(active_borrowings, many=True)
-        serializer_inactive = BorrowingListSerializer(inactive_borrowings, many=True)
+        serializer_active = BorrowingListSerializer(
+            active_borrowings, many=True
+        )
+        serializer_inactive = BorrowingListSerializer(
+            inactive_borrowings, many=True
+        )
 
         self.assertEqual(response_active.status_code, status.HTTP_200_OK)
         self.assertEqual(response_active.data, serializer_active.data)

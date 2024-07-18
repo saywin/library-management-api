@@ -64,12 +64,14 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                 book.inventory -= 1
                 book.save()
             else:
-                raise serializers.ValidationError("Inventory for the book is empty.")
+                raise serializers.ValidationError(
+                    "Inventory for the book is empty."
+                )
 
             borrowing = Borrowing.objects.create(**validated_data)
 
             try:
-                session_id = create_stripe_session(request, borrowing)
+                create_stripe_session(request, borrowing)
             except Exception as e:
                 borrowing.delete()
                 raise serializers.ValidationError(str(e))

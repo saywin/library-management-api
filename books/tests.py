@@ -26,7 +26,9 @@ class BaseBookAPITest(TestCase):
             "daily_fee": 10,
         }
         self.book_list_url = reverse("books:book-list")
-        self.book_detail_url = reverse("books:book-detail", args=[self.book_1.id])
+        self.book_detail_url = reverse(
+            "books:book-detail", args=[self.book_1.id]
+        )
 
 
 class UnAuthenticatedBooksApiTest(BaseBookAPITest):

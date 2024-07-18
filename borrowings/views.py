@@ -1,6 +1,6 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from borrowings.helpers import send_telegram_message
@@ -57,7 +57,8 @@ class BorrowingListView(generics.ListAPIView):
             OpenApiParameter(
                 name="is_active",
                 type=OpenApiTypes.BOOL,
-                description="Filter by actual return date (ex. ?is_active=True)",
+                description="Filter by actual return date "
+                "(ex. ?is_active=True)",
             ),
             OpenApiParameter(
                 name="user_id",

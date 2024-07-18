@@ -24,7 +24,7 @@ def check_overdue_borrowings():
             message = (
                 f"Overdue borrowing:\n"
                 f"User: {user}\nBook: {book_title}\n"
-                f"Email user: {borrowing.user.email}\n"
+                f"Email user: {email}\n"
                 f"Return date: {return_date}"
             )
             send_telegram_message(message)

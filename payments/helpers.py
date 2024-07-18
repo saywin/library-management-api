@@ -12,7 +12,9 @@ def create_stripe_session(request, borrowing):
     total_price = borrowing.book.daily_fee
     unit_amount = int(total_price * 100)
 
-    success_url = request.build_absolute_uri(reverse("payments:payment-success"))
+    success_url = request.build_absolute_uri(
+        reverse("payments:payment-success")
+    )
     cancel_url = request.build_absolute_uri(reverse("payments:payment-cancel"))
 
     session = stripe.checkout.Session.create(

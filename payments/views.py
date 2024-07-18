@@ -72,20 +72,25 @@ class StripePaymentSuccessAPIView(APIView):
         session_id = request.GET.get("session_id")
         if not session_id:
             return Response(
-                {"error": "Session ID not provided"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Session ID not provided"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
             payment = Payment.objects.get(session_id=session_id)
         except Payment.DoesNotExist:
             return Response(
-                {"error": "Payment not found for session ID"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Payment not found for session ID"},
+                status=status.HTTP_404_NOT_FOUND
             )
 
         borrowing = payment.borrowing
         if payment.status == Payment.StatusChoices.PAID:
             return Response(
-                {"message": "Payment already marked as paid", "borrowing": borrowing.id},
+                {
+                    "message": "Payment already marked as paid",
+                    "borrowing": borrowing.id
+                },
                 status=status.HTTP_200_OK,
             )
 
@@ -111,13 +116,17 @@ class StripePaymentCancelAPIView(APIView):
             payment = Payment.objects.get(session_id=session_id)
         except Payment.DoesNotExist:
             return Response(
-                {"error": "Payment not found for session ID"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Payment not found for session ID"},
+                status=status.HTTP_404_NOT_FOUND
             )
 
         borrowing = payment.borrowing
         if payment.status == Payment.StatusChoices.PAID:
             return Response(
-                {"error": "Cannot cancel a paid payment", "borrowing": borrowing.id},
+                {
+                    "error": "Cannot cancel a paid payment",
+                    "borrowing": borrowing.id
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
