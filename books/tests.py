@@ -51,12 +51,11 @@ class AuthenticatedBooksApiTest(BaseBookAPITest):
     def setUp(self):
         super().setUp()
         self.user = get_user_model().objects.create_user(
-            email="user@user.com",
-            password="1qazcde3"
+            email="user@user.com", password="1qazcde3"
         )
         self.client.force_authenticate(user=self.user)
 
-    def test_get_book_detail_unauthorized_forbidden(self):
+    def test_get_book_detail_authorized_forbidden(self):
         response = self.client.get(self.book_detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
